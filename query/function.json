@@ -2,12 +2,11 @@
   "bindings": [
     {
       "type": "cosmosDBTrigger",
-      "name": "documents",
       "direction": "in",
-      "leaseCollectionName": "leases",
-      "connectionStringSetting": "",
-      "databaseName": "requests",
+      "name": "requestMade",
+      "databaseName": "price-hawk",
       "collectionName": "requests",
+      "connectionStringSetting": "PriceHawkConnectionString",
       "createLeaseCollectionIfNotExists": true
     }
   ],

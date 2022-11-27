@@ -1,11 +1,11 @@
-import { Query } from "../query";
+import { Request } from "../request.js";
 
-export type QueryResult = {
+export type RequestResult = {
     name: string;
-    description: string;
-    imageUrl: string;
     price: number;
     url: string;
+    description?: string;
+    imageUrl?: string;
 }
 
-export type QueryHandler = (query: Query) => Promise<Array<QueryResult>>;
+export type RequestHandler = (query: Request) => Promise<Array<RequestResult>>;
