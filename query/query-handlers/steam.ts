@@ -1,10 +1,11 @@
+import { RequestHandler, RequestResult } from "./handler.js";
+
 import { JSDOM } from 'jsdom';
-import { RequestResult } from "./handler.js";
 
 const searchUrl = (search: string) => `https://store.steampowered.com/search/results?term=${encodeURI(search)}&force_infinite=1&supportedlang=english`;
 
-export function steamRequestHandler(query: string, price: number): Promise<Array<RequestResult>> {
-    return JSDOM.fromURL(searchUrl('No Mans Sky')).then(dom => {
+export const steamRequestHandler: RequestHandler = (query: string, searchPrice: number) => {
+    return JSDOM.fromURL(searchUrl(query)).then(dom => {
         const elements: NodeListOf<HTMLAnchorElement> = dom.window.document.querySelectorAll('a.search_result_row');
         let results: Array<RequestResult> = [];
         elements.forEach(elm => {

@@ -1,4 +1,4 @@
-import { Request } from "../request.js";
+import { Request } from "../../models/request.js";
 
 export type RequestResult = {
     name: string;
@@ -8,4 +8,4 @@ export type RequestResult = {
     imageUrl?: string;
 }
 
-export type RequestHandler = (query: Request) => Promise<Array<RequestResult>>;
+export type RequestHandler = (query: string, searchPrice: number) => Promise<Array<RequestResult>>;

@@ -8,6 +8,12 @@
       "collectionName": "requests",
       "connectionStringSetting": "PriceHawkConnectionString",
       "createLeaseCollectionIfNotExists": true
+    },
+    {
+      "schedule": "0 0 */12 * * *",
+      "name": "every12Hours",
+      "type": "timerTrigger",
+      "direction": "in"
     }
   ],
   "scriptFile": "../dist/query/index.js"

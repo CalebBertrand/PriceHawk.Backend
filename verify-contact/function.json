@@ -1,0 +1,20 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req"
+    },
+    {
+      "name": "pendingVerification",
+      "type": "cosmosDB",
+      "databaseName": "price-hawk",
+      "collectionName": "pending-verifications",
+      "createIfNotExists": false,
+      "connectionStringSetting": "PriceHawkConnectionString",
+      "direction": "out"
+    }
+  ],
+  "scriptFile": "../dist/verify-contact/index.js"
+}

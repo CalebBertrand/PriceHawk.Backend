@@ -1,0 +1,20 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req"
+    },
+    {
+      "name": "requests",
+      "type": "cosmosDB",
+      "databaseName": "price-hawk",
+      "collectionName": "requests",
+      "createIfNotExists": false,
+      "connectionStringSetting": "PriceHawkConnectionString",
+      "direction": "out"
+  }
+  ],
+  "scriptFile": "../dist/requests/index.js"
+}
