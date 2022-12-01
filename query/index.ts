@@ -1,8 +1,8 @@
 import { AzureFunction, Context, Timer } from "@azure/functions";
 
 import { CosmosClient } from '@azure/cosmos';
-import { MarketPlaces } from "../models/marketplaces.enum.js";
-import { Request } from '../models/request.js';
+import { MarketPlaces } from "../SharedCode/marketplaces.enum.js";
+import { Request } from '../SharedCode/request.js';
 import { RequestResult } from "./query-handlers/handler.js";
 import { steamRequestHandler } from "./query-handlers/steam.js";
 

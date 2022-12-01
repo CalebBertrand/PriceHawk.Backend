@@ -1,4 +1,4 @@
-import { Request } from "../../models/request.js";
+import { Request } from "../../SharedCode/request.js";
 
 export type RequestResult = {
     name: string;

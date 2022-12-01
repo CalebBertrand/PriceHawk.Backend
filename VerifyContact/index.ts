@@ -1,6 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 
-import { PendingVerification } from "../models/pending-verification.js";
+import { PendingVerification } from "../SharedCode/pending-verification.js";
 import { randomInt } from 'node:crypto';
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {

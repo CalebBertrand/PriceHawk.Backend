@@ -16,5 +16,5 @@
       "direction": "out"
   }
   ],
-  "scriptFile": "../dist/requests/index.js"
+  "scriptFile": "../dist/Requests/index.js"
 }

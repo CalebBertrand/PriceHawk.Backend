@@ -16,5 +16,5 @@
       "direction": "in"
     }
   ],
-  "scriptFile": "../dist/query/index.js"
+  "scriptFile": "../dist/Query/index.js"
 }
