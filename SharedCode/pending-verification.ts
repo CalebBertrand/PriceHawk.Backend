@@ -1,4 +1,4 @@
 export type PendingVerification = {
     email: string;
-    code: string;
+    code: number;
 }

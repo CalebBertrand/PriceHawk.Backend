@@ -1,0 +1,11 @@
+{
+  "bindings": [
+    {
+      "schedule": "0 0 */12 * * *",
+      "name": "every12Hours",
+      "type": "timerTrigger",
+      "direction": "in"
+    }
+  ],
+  "scriptFile": "../dist/QueryOnSchedule/index.js"
+}

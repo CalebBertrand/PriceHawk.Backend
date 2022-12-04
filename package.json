@@ -13,6 +13,7 @@
   "devDependencies": {
     "@azure/functions": "^3.0.0",
     "@microsoft/microsoft-graph-types": "^2.25.0",
+    "@types/isomorphic-fetch": "^0.0.36",
     "@types/node": "16.x",
     "typescript": "^4.0.0"
   },
@@ -21,7 +22,7 @@
     "@azure/msal-node": "^1.14.4",
     "@microsoft/microsoft-graph-client": "^3.0.4",
     "@types/jsdom": "^20.0.1",
-    "jsdom": "^20.0.3",
-    "node-fetch": "^2.6.7"
+    "isomorphic-fetch": "^3.0.0",
+    "jsdom": "^20.0.3"
   }
 }
