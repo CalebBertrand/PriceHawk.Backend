@@ -2,12 +2,27 @@ import { AzureFunction, Context, Timer } from "@azure/functions";
 
 import { CosmosClient } from '@azure/cosmos';
 import { Request } from '../SharedCode/request.js';
-import { processRequests } from "../SharedCode/query-handlers/process-requests.js";
+import sendgridClient from '@sendgrid/mail';
+import { processRequest } from "../SharedCode/query-handlers/process-requests.js";
 
 export const timerTrigger: AzureFunction = async function (context: Context, timer: Timer): Promise<void> {
-    const client = new CosmosClient(process.env["PriceHawkConnectionString"])
-            .database('price-hawk').container('requests');
+    const cosmosClient = new CosmosClient(process.env["PriceHawkConnectionString"])
+        .database('price-hawk').container('requests');
+    const queryResults = await cosmosClient.items.readAll().fetchAll();
 
-    const { resources } = await client.items.readAll().fetchAll();
-    context.res = await processRequests(resources as Request[]);
+    sendgridClient.setApiKey(process.env["SENDGRID_API_KEY"]);
+
+    const watches = queryResults.resources as Array<Request>;
+    watches.forEach(async watch => {
+        const results = await processRequest(watch);
+        await sendgridClient.send({
+            to: watch.contact,
+            from: process.env["NotificationsPrincipleName"],
+            templateId: process.env["WatchResultsEmailTemplateId"],
+            dynamicTemplateData: {
+                query: watch.query,
+                results
+            }
+        });
+    });
 }

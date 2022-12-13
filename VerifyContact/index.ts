@@ -1,40 +1,21 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-
-import 'isomorphic-fetch';
-import { Client } from "@microsoft/microsoft-graph-client";
 import { PendingVerification } from "../SharedCode/pending-verification.js";
-import { graphAuthProvider } from "../SharedCode/graph-auth-provider.js";
 import { randomInt } from 'node:crypto';
+import client from '@sendgrid/mail';
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     const code = randomInt(10000, 99999);
 
-    const client = Client.init({ authProvider: graphAuthProvider });
-    const sendMail = {
-      message: {
-        subject: 'Price Hawk Verification Code',
-        body: {
-          contentType: 'text/plain',
-          content: `Your verification code is: ${code}`
-        },
-        toRecipients: [
-          {
-            emailAddress: {
-              address: req.query["email"]
-            }
-          }
-        ],
-        from: {
-          emailAddress: {
-            address: process.env["NotificationsPrincipleName"]
-          }
-        }
-      },
-      saveToSentItems: 'false'
-    };
-    await client.api(`/users/${process.env["NotificationsPrincipleName"]}/sendMail`)
-      .post(sendMail)
-      .catch(err => console.log(err));
+    client.setApiKey(process.env["SENDGRID_API_KEY"]);
+    await client.send({
+      to: req.query["email"],
+      from: process.env["NotificationsPrincipleName"],
+      subject: 'Price Hawk Verification Code',
+      templateId: process.env["VerificationEmailTemplateId"],
+      dynamicTemplateData: {
+        code: code
+      }
+    });
 
     context.bindings.pendingVerification = { email: req.query["email"], code } as PendingVerification;
 }

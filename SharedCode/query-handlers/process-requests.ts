@@ -3,18 +3,12 @@ import { Request } from '../request.js';
 import { RequestResult } from "./handler.js";
 import { steamRequestHandler } from "./steam.js";
 
-export async function processRequests(requests: Request[]): Promise<RequestResult[]> {
-    const results: Array<RequestResult> = [];
-    requests.forEach(async req => {
-        switch(req.marketplaceId) {
-            case(MarketPlaces.Steam):
-                const steamResults = await steamRequestHandler(req.query, req.price);
-                results.unshift(...steamResults.filter(res => matchesConditions(res, req)));
-                break;
-        }
-    });
-
-    return results;
+export async function processRequest(request: Request): Promise<RequestResult[]> {
+    switch(request.marketplaceId) {
+        case(MarketPlaces.Steam):
+            const steamResults = await steamRequestHandler(request.query, request.price);
+            return steamResults.filter(res => matchesConditions(res, request));
+    }
 }
 
 function matchesConditions(result: RequestResult, request: Request): boolean {
