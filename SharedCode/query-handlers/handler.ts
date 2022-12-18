@@ -8,4 +8,4 @@ export type RequestResult = {
     imageUrl?: string;
 }
 
-export type RequestHandler = (query: string, searchPrice: number) => Promise<Array<RequestResult>>;
+export type RequestHandler = (query: string) => Promise<Array<RequestResult>>;

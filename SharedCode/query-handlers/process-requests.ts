@@ -6,7 +6,7 @@ import { steamRequestHandler } from "./steam.js";
 export async function processRequest(request: Request): Promise<RequestResult[]> {
     switch(request.marketplaceId) {
         case(MarketPlaces.Steam):
-            const steamResults = await steamRequestHandler(request.query, request.price);
+            const steamResults = await steamRequestHandler(request.query);
             return steamResults.filter(res => matchesConditions(res, request));
     }
 }

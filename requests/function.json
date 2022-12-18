@@ -14,7 +14,12 @@
       "createIfNotExists": false,
       "connectionStringSetting": "PriceHawkConnectionString",
       "direction": "out"
-  }
+    },
+    {
+      "name": "httpRes",
+      "type": "http",
+      "direction": "out"
+    }
   ],
   "scriptFile": "../dist/Requests/index.js"
 }

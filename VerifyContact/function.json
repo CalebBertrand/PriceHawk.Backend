@@ -10,7 +10,7 @@
       "name": "pendingVerification",
       "type": "cosmosDB",
       "databaseName": "price-hawk",
-      "collectionName": "pending-verifications",
+      "collectionName": "verifications",
       "createIfNotExists": false,
       "connectionStringSetting": "PriceHawkConnectionString",
       "direction": "out"

@@ -12,14 +12,12 @@
   },
   "devDependencies": {
     "@azure/functions": "^3.0.0",
-    "@microsoft/microsoft-graph-types": "^2.25.0",
     "@types/isomorphic-fetch": "^0.0.36",
     "@types/node": "16.x",
     "typescript": "^4.0.0"
   },
   "dependencies": {
     "@azure/cosmos": "^3.17.2",
-    "@azure/msal-node": "^1.14.4",
     "@microsoft/microsoft-graph-client": "^3.0.4",
     "@sendgrid/mail": "^7.7.0",
     "@types/jsdom": "^20.0.1",
