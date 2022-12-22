@@ -1,4 +1,4 @@
-import { AzureFunction, Context, Timer } from "@azure/functions";
+import { AzureFunction, Context } from "@azure/functions";
 
 import { Request } from '../SharedCode/request.js';
 import { processRequest } from "../SharedCode/query-handlers/process-requests.js";

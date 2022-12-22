@@ -15,14 +15,16 @@ export const timerTrigger: AzureFunction = async function (context: Context, tim
     const watches = queryResults.resources as Array<Request>;
     watches.forEach(async watch => {
         const results = await processRequest(watch);
-        await sendgridClient.send({
-            to: watch.contact,
-            from: process.env["NotificationsPrincipleName"],
-            templateId: process.env["WatchResultsEmailTemplateId"],
-            dynamicTemplateData: {
-                query: watch.query,
-                results
-            }
-        });
+        if (results.length) {
+            await sendgridClient.send({
+                to: watch.contact,
+                from: process.env["NotificationsPrincipleName"],
+                templateId: process.env["WatchResultsEmailTemplateId"],
+                dynamicTemplateData: {
+                    query: watch.query,
+                    results
+                }
+            });
+        }
     });
 }
