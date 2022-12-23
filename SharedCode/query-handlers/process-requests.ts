@@ -2,15 +2,17 @@ import { MarketPlaces } from "../marketplaces.enum.js";
 import { Request } from '../request.js';
 import { RequestResult } from "./handler.js";
 import { steamRequestHandler } from "./steam.js";
+import fuzzysort from "fuzzysort";
 
 export async function processRequest(request: Request): Promise<RequestResult[]> {
     switch(request.marketplaceId) {
         case(MarketPlaces.Steam):
             const steamResults = await steamRequestHandler(request.query);
-            return steamResults.filter(res => matchesConditions(res, request));
+            return filterByConditions(steamResults, request);
     }
 }
 
-function matchesConditions(result: RequestResult, request: Request): boolean {
-    return result.price <= request.price && new RegExp(request.query, 'i').test(result.name);
+function filterByConditions(results: Array<RequestResult>, request: Request): Array<RequestResult> {
+    const inPriceRange = results.filter(result => result.price <= request.price);
+    return fuzzysort.go(request.query, inPriceRange, { threshold: -45, key: 'name' }).map(filtered => filtered.obj);
 }
