@@ -4,13 +4,16 @@ import { CosmosClient } from '@azure/cosmos';
 import fetch from 'isomorphic-fetch';
 import { IncomingWatch } from "./incoming-watch.js";
 import { Request } from "../SharedCode/request.js";
+import { marketPlaces } from "../SharedCode/marketplaces.enum.js";
+import { generateResponse } from "../SharedCode/http-helpers/response-generator.js";
+import { ResponseCodes } from "../SharedCode/http-helpers/response-codes.enum.js";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     const contract = req.body;
 
     // Be sure the verification code is a number, as it is injected into SQL
     if (!isValidContract(contract)) {
-        context.bindings.httpRes = { status: 400, body: "Invalid Request" };
+        context.bindings.httpRes = generateResponse(ResponseCodes.InvalidContract);
         return;
     }
     const watch = sanitizeContract(contract);
@@ -23,7 +26,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
       });
     const verification = await response.json();
     if (!verification.success) {
-        context.bindings.httpRes = { status: 403, body: "Captcha Failed" };
+        context.bindings.httpRes = generateResponse(ResponseCodes.CaptchaFailed);
         return;
     }
 
@@ -35,7 +38,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         .query(`SELECT * FROM verifications AS v WHERE v.code = ${watch.verificationCode} AND v.email = '${watch.contact}'`)
         .fetchNext();
     if (!matchingVerificationQuery.resources.length) {
-        context.bindings.httpRes = { status: 403, body: "Verification Code Incorrect" };
+        context.bindings.httpRes = generateResponse(ResponseCodes.InvalidVerificationCode);
         return;
     }
 
@@ -45,7 +48,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         .query(`SELECT * FROM requests AS r WHERE r.query = '${watch.query}' AND r.contact = '${watch.contact}'`)
         .fetchNext();
     if (duplicateWatchQuery.resources.length) {
-        context.bindings.httpRes = { status: 403, body: "Cannot Have Multiple Watches Of The Same Query" };
+        context.bindings.httpRes = generateResponse(ResponseCodes.DuplicateWatch);
         return;
     }
 
@@ -58,7 +61,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         ttl: 24 * 60 * 60 * watch.dayCount
     } as Request));
     context.bindings.requests = JSON.stringify(requests);
-    context.bindings.httpRes = { status: 200, body: "Success" };
+    context.bindings.httpRes = generateResponse(ResponseCodes.Success);
 }
 
 export default httpTrigger;
@@ -72,6 +75,8 @@ function isValidContract(contract: unknown): contract is IncomingWatch {
         && !/[\s'"]/.test(contract['contact'])
         && /^\S+@\S+\.\S+$/.test(contract['contact'])
         && typeof contract['query'] === 'string'
+        && Array.isArray(contract['marketplaceIds'])
+        && contract['marketplaceIds'].every(id => marketPlaces.has(id))
     );
 }
 
