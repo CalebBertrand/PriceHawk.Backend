@@ -1,4 +1,4 @@
-import { AzureFunction, Context } from "@azure/functions";
+import { AzureFunction } from "@azure/functions";
 
 import { Request } from '../SharedCode/request.js';
 import { processRequest } from "../SharedCode/query-handlers/process-requests.js";
@@ -15,6 +15,7 @@ export const cosmosDBTrigger: AzureFunction = async function (_, documents: Arra
             from: process.env["NotificationsPrincipleName"],
             templateId: process.env["WatchResultsEmailTemplateId"],
             dynamicTemplateData: {
+                id: watch.id,
                 query: watch.query,
                 results
             }

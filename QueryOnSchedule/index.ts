@@ -21,6 +21,7 @@ export const timerTrigger: AzureFunction = async function (context: Context, tim
                 from: process.env["NotificationsPrincipleName"],
                 templateId: process.env["WatchResultsEmailTemplateId"],
                 dynamicTemplateData: {
+                    id: watch.id,
                     query: watch.query,
                     results
                 }
