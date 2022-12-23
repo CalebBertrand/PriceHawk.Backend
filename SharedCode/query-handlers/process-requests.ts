@@ -12,10 +12,5 @@ export async function processRequest(request: Request): Promise<RequestResult[]>
 }
 
 function matchesConditions(result: RequestResult, request: Request): boolean {
-    if (result.price > request.price) return false;
-
-    const resultWords = result.name.split(' ');
-    const requestWords = request.query.split(' ');
-    // There is at least a 50% overlap in unique words
-    return resultWords.filter(w => requestWords.includes(w)).length / requestWords.length >= 0.5;
+    return result.price <= request.price && new RegExp(request.query, 'i').test(result.name);
 }

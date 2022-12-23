@@ -4,7 +4,7 @@ import { Request } from '../SharedCode/request.js';
 import { processRequest } from "../SharedCode/query-handlers/process-requests.js";
 import client from '@sendgrid/mail';
 
-export const cosmosDBTrigger: AzureFunction = async function (context: Context, documents: Array<Request>): Promise<void> {
+export const cosmosDBTrigger: AzureFunction = async function (_, documents: Array<Request>): Promise<void> {
     client.setApiKey(process.env["SENDGRID_API_KEY"]);
 
     const watch = documents[0];
