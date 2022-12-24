@@ -10,7 +10,7 @@ import { ResponseCodes } from "../SharedCode/http-helpers/response-codes.enum.js
 import appInsights from 'applicationinsights';
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
-    appInsights.start();
+    appInsights.setup(process.env['APPLICATIONINSIGHTS_CONNECTION_STRING']).start();
     const logger = appInsights.defaultClient;
 
     const contract = req.body;
