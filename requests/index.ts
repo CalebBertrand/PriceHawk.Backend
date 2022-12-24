@@ -7,12 +7,17 @@ import { Request } from "../SharedCode/request.js";
 import { marketPlaces } from "../SharedCode/marketplaces.enum.js";
 import { generateResponse } from "../SharedCode/http-helpers/response-generator.js";
 import { ResponseCodes } from "../SharedCode/http-helpers/response-codes.enum.js";
+import appInsights from 'applicationinsights';
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+    appInsights.start();
+    const logger = appInsights.defaultClient;
+
     const contract = req.body;
 
     // Be sure the verification code is a number, as it is injected into SQL
     if (!isValidContract(contract)) {
+        logger.trackEvent({ name: `Invalid Contract: ${JSON.stringify(contract)}` });
         context.bindings.httpRes = generateResponse(ResponseCodes.InvalidContract);
         return;
     }
@@ -26,6 +31,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
       });
     const verification = await response.json();
     if (!verification.success) {
+        logger.trackEvent({ name: `Captcha Failed: ${JSON.stringify(verification)}` });
         context.bindings.httpRes = generateResponse(ResponseCodes.CaptchaFailed);
         return;
     }
@@ -38,12 +44,15 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         .query(`SELECT * FROM verifications AS v WHERE v.code = ${watch.verificationCode} AND v.email = '${watch.contact}'`)
         .fetchNext();
     if (!matchingVerificationQuery.resources.length) {
+        logger.trackEvent({
+            name: `No Verification Code Matching ${watch.verificationCode}`,
+            measurements: { code: watch.verificationCode }
+        });
         context.bindings.httpRes = generateResponse(ResponseCodes.InvalidVerificationCode);
         return;
     }
 
-    const duplicateWatchQuery = await cosmosClient
-        .container('requests')
+    const duplicateWatchQuery = await cosmosClient.container('requests')
         .items
         .query(`SELECT * FROM requests AS r WHERE r.query = '${watch.query}' AND r.contact = '${watch.contact}'`)
         .fetchNext();
