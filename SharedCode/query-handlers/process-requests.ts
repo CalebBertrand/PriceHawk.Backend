@@ -14,5 +14,5 @@ export async function processRequest(request: Request): Promise<RequestResult[]>
 
 function filterByConditions(results: Array<RequestResult>, request: Request): Array<RequestResult> {
     const inPriceRange = results.filter(result => result.price <= request.price);
-    return fuzzysort.go(request.query, inPriceRange, { threshold: -45, key: 'name' }).map(filtered => filtered.obj);
+    return fuzzysort.go(request.query, inPriceRange, { threshold: -30, key: 'name' }).map(filtered => filtered.obj);
 }
