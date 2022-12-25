@@ -9,15 +9,14 @@ import { generateResponse } from "../SharedCode/http-helpers/response-generator.
 import { ResponseCodes } from "../SharedCode/http-helpers/response-codes.enum.js";
 import appInsights from 'applicationinsights';
 
-const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
-    appInsights.setup(process.env['APPLICATIONINSIGHTS_CONNECTION_STRING']).start();
-    const logger = appInsights.defaultClient;
+appInsights.setup(process.env['APPLICATIONINSIGHTS_CONNECTION_STRING']).start();
 
+const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     const contract = req.body;
 
     // Be sure the verification code is a number, as it is injected into SQL
     if (!isValidContract(contract)) {
-        logger.trackEvent({ name: `Invalid Contract: ${JSON.stringify(contract)}` });
+        appInsights.defaultClient.trackEvent({ name: `Invalid Contract: ${JSON.stringify(contract)}` });
         context.bindings.httpRes = generateResponse(ResponseCodes.InvalidContract);
         return;
     }
@@ -31,7 +30,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
       });
     const verification = await response.json();
     if (!verification.success) {
-        logger.trackEvent({ name: `Captcha Failed: ${JSON.stringify(verification)}` });
+        appInsights.defaultClient.trackEvent({ name: `Captcha Failed: ${JSON.stringify(verification)}` });
         context.bindings.httpRes = generateResponse(ResponseCodes.CaptchaFailed);
         return;
     }
@@ -44,7 +43,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         .query(`SELECT * FROM verifications AS v WHERE v.code = ${watch.verificationCode} AND v.email = '${watch.contact}'`)
         .fetchNext();
     if (!matchingVerificationQuery.resources.length) {
-        logger.trackEvent({
+        appInsights.defaultClient.trackEvent({
             name: `No Verification Code Matching ${watch.verificationCode}`,
             measurements: { code: watch.verificationCode }
         });
@@ -73,7 +72,29 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     context.bindings.httpRes = generateResponse(ResponseCodes.Success);
 }
 
-export default httpTrigger;
+// App insights wrapper
+export default async function contextPropagatingHttpTrigger(context: Context, req: HttpRequest) {
+    const correlationContext = appInsights.startOperation(context, req);
+
+    return appInsights.wrapWithCorrelationContext(async () => {
+        const startTime = Date.now(); // Start trackRequest timer
+
+        const result = await httpTrigger(context, req);
+
+        appInsights.defaultClient.trackRequest({
+            name: context.req.method + " " + context.req.url,
+            resultCode: context.res.status,
+            success: true,
+            url: req.url,
+            time: new Date(startTime),
+            duration: Date.now() - startTime,
+            id: correlationContext.operation.parentId,
+        });
+        appInsights.defaultClient.flush();
+
+        return result;
+    }, correlationContext)();
+};
 
 function isValidContract(contract: unknown): contract is IncomingWatch {
     return (
