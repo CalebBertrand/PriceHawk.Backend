@@ -77,7 +77,7 @@ export default async function contextPropagatingHttpTrigger(context: Context, re
     const correlationContext = appInsights.startOperation(context, req);
 
     return appInsights.wrapWithCorrelationContext(async () => {
-        const startTime = Date.now(); // Start trackRequest timer
+        const startTime = Date.now();
 
         const result = await httpTrigger(context, req);
 

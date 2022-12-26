@@ -1,5 +1,3 @@
-import { Request } from "../request.js";
-
 export type RequestResult = {
     name: string;
     price: number;
