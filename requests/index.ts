@@ -2,25 +2,24 @@ import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 
 import { CosmosClient } from '@azure/cosmos';
 import fetch from 'isomorphic-fetch';
-import { IncomingWatch } from "./incoming-watch.js";
 import { Request } from "../SharedCode/request.js";
-import { marketPlaces } from "../SharedCode/marketplaces.enum.js";
 import { generateResponse } from "../SharedCode/http-helpers/response-generator.js";
 import { ResponseCodes } from "../SharedCode/http-helpers/response-codes.enum.js";
 import appInsights from 'applicationinsights';
+import { sanitizeWatch } from "../SharedCode/utils/sanitation.js";
+import { isValidWatch } from '../SharedCode/utils/validation.js';
 
 appInsights.setup(process.env['APPLICATIONINSIGHTS_CONNECTION_STRING']).start();
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
-    const contract = req.body;
+    const watch = req.body;
 
-    // Be sure the verification code is a number, as it is injected into SQL
-    if (!isValidContract(contract)) {
-        appInsights.defaultClient.trackEvent({ name: `Invalid Contract: ${JSON.stringify(contract)}` });
+    if (!isValidWatch(watch)) {
+        appInsights.defaultClient.trackEvent({ name: `Invalid Contract: ${JSON.stringify(watch)}` });
         context.bindings.httpRes = generateResponse(ResponseCodes.InvalidContract);
         return;
     }
-    const watch = sanitizeContract(contract);
+    sanitizeWatch(watch);
 
     // Verify captcha was completed
     const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
@@ -95,23 +94,3 @@ export default async function contextPropagatingHttpTrigger(context: Context, re
         return result;
     }, correlationContext)();
 };
-
-function isValidContract(contract: unknown): contract is IncomingWatch {
-    return (
-        contract 
-        && typeof contract['verificationCode'] === 'number'
-        && typeof contract['contact'] === 'string'
-        && contract['contact'].length < 30
-        && !/[\s'"]/.test(contract['contact'])
-        && /^\S+@\S+\.\S+$/.test(contract['contact'])
-        && typeof contract['query'] === 'string'
-        && Array.isArray(contract['marketplaceIds'])
-        && contract['marketplaceIds'].every(id => marketPlaces.has(id))
-    );
-}
-
-function sanitizeContract(contract: IncomingWatch): IncomingWatch {
-    contract.query = contract.query.replace(/'/g, "\\'");
-    contract.contact = contract.contact.replace(/'/g, "\\'");
-    return contract;
-}

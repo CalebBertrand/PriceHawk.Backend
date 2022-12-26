@@ -1,0 +1,16 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req"
+    },
+    {
+      "name": "httpRes",
+      "type": "http",
+      "direction": "out"
+    }
+  ],
+  "scriptFile": "../dist/Preview/index.js"
+}

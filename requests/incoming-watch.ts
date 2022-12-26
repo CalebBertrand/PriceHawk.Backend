@@ -1,7 +1,9 @@
 import { MarketPlaces } from "../SharedCode/marketplaces.enum.js";
-import { Request } from "../SharedCode/request.js";
 
-export type IncomingWatch = Request & {
+export type IncomingWatch = {
+    contact: string;
+    query: string;
+    price: number;
     marketplaceIds: MarketPlaces[];
     captchaToken: string;
     dayCount: number;
