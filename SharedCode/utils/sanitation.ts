@@ -8,8 +8,10 @@ export function sanitizeString(str: string): string {
 export function sanitizeWatch(contract: IncomingWatch): void {
     contract.query = sanitizeString(contract.query);
     contract.contact = sanitizeString(contract.contact);
+    contract.price = +contract.price;
 }
 
 export function sanitizePreviewRequest(contract: PreviewRequest): void {
     contract.query = sanitizeString(contract.query);
+    contract.price = +contract.price;
 }

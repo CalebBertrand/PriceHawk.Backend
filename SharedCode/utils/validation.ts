@@ -9,7 +9,7 @@ export function isNullOrWhiteSpace(str: string): boolean {
 export function isValidWatch(contract: unknown): contract is IncomingWatch {
     return (
         contract 
-        && typeof contract['price'] === 'number'
+        && typeof +contract['price'] === 'number'
         && typeof contract['verificationCode'] === 'number'
         && typeof contract['contact'] === 'string'
         && contract['contact'].length < 30
@@ -25,7 +25,7 @@ export function isValidWatch(contract: unknown): contract is IncomingWatch {
 export function isValidPreviewRequest(contract: unknown): contract is PreviewRequest {
     return (
         contract
-        && typeof contract['price'] === 'number'
+        && typeof +contract['price'] === 'number'
         && typeof contract['query'] === 'string'
         && !isNullOrWhiteSpace(contract['query'])
         && Array.isArray(contract['marketplaceIds'])

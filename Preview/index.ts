@@ -18,17 +18,21 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
   const cosmosClient = new CosmosClient(process.env["PriceHawkConnectionString"]).database('price-hawk');
   const marketplaceIds = previewReq.marketplaceIds.map(id => `${id}`).join(', ');
-  const previewResultsQuery = await cosmosClient.container('results').items.query(`SELECT r.results FROM results AS r WHERE r.query = '${previewReq.query}' AND r.marketplaceId IN (${marketplaceIds})`).fetchNext();
+  const normalizedQuery = previewReq.query.trim().toLowerCase();
+  const previewResultsQuery = await cosmosClient.container('results').items.query(`SELECT * FROM results AS r WHERE r.query = '${normalizedQuery}' AND r.marketplaceId IN (${marketplaceIds})`).fetchNext();
   if (previewResultsQuery.resources.length) {
-    const resultsForPrice = filterByConditions(previewResultsQuery.resources as Array<RequestResult>, previewReq);
-    context.bindings.httpRes = { status: 200, body: resultsForPrice };
-    return;
+    const previewResults = previewResultsQuery.resources[0].results as Array<RequestResult>;
+    if (previewResults.length) {
+      const resultsForPrice = filterByConditions(previewResults, previewReq);
+      context.bindings.httpRes = { status: 200, body: resultsForPrice };
+      return;
+    }
   }
 
   const filteredResults: Array<RequestResult> = [];
   previewReq.marketplaceIds.forEach(async marketplaceId => {
     const unfilteredResults = await processRequest({ query: previewReq.query, marketplaceId });
-    await cosmosClient.container('results').items.upsert({ query: previewReq.query, marketplaceId, results: unfilteredResults });
+    await cosmosClient.container('results').items.upsert({ query: normalizedQuery, marketplaceId: marketplaceId, results: unfilteredResults });
     filteredResults.push(...filterByConditions(unfilteredResults, previewReq));
   });
   context.bindings.httpRes = { status: 200, body: filteredResults };
