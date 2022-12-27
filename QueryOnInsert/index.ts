@@ -13,7 +13,7 @@ export const cosmosDBTrigger: AzureFunction = async function (_, documents: Arra
     if (!results.length) return;
     const cosmosClient = new CosmosClient(process.env["PriceHawkConnectionString"]).database('price-hawk');
     const watchQuery = watch.query.trim().toLowerCase();
-    await cosmosClient.container('results').items.upsert({ query: watchQuery, results: results });
+    await cosmosClient.container('results').items.upsert({ query: watchQuery, marketplaceId: watch.marketplaceId, results: results });
 
     const filteredResults = filterByConditions(results, watch);
     if (filteredResults.length) {
