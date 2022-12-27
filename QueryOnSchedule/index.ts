@@ -1,11 +1,10 @@
 import { AzureFunction } from "@azure/functions";
-
 import { CosmosClient } from '@azure/cosmos';
 import { Request } from '../SharedCode/request.js';
 import sendgridClient from '@sendgrid/mail';
 import { filterByConditions, processRequest } from "../SharedCode/query-handlers/process-requests.js";
 import { QueryResults } from "../SharedCode/query-result.js";
-import { uniqBy } from 'lodash';
+import { uniqBy } from 'lodash-es';
 
 export const timerTrigger: AzureFunction = async function (): Promise<void> {
     sendgridClient.setApiKey(process.env["SENDGRID_API_KEY"]);
