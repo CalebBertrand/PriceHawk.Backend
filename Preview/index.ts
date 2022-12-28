@@ -30,11 +30,13 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
   }
 
   const filteredResults: Array<RequestResult> = [];
-  previewReq.marketplaceIds.forEach(async marketplaceId => {
-    const unfilteredResults = await processRequest({ query: previewReq.query, marketplaceId });
-    await cosmosClient.container('results').items.upsert({ query: normalizedQuery, marketplaceId: marketplaceId, results: unfilteredResults });
-    filteredResults.push(...filterByConditions(unfilteredResults, previewReq));
-  });
+  await Promise.all(
+      previewReq.marketplaceIds.map(async marketplaceId => {
+        const unfilteredResults = await processRequest({ query: previewReq.query, marketplaceId });
+        await cosmosClient.container('results').items.upsert({ query: normalizedQuery, marketplaceId: marketplaceId, results: unfilteredResults });
+        filteredResults.push(...filterByConditions(unfilteredResults, previewReq));
+      })
+  );
   context.bindings.httpRes = { status: 200, body: filteredResults };
 }
 
