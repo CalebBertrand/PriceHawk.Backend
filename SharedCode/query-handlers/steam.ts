@@ -15,7 +15,30 @@ export const steamRequestHandler: RequestHandler = (query: string) => {
             const name = elm.getElementsByClassName('title').item(0).textContent;
             const price = +(elm.getElementsByClassName('search_price').item(0).textContent.split('$').pop().trim());
 
-            results.push({ url, imageUrl, name, price });
+            const ratingTooltipData = elm.querySelector('.search_review_summary')?.getAttribute('data-tooltip-html');
+            let rating = undefined;
+            if (ratingTooltipData) {
+                if (ratingTooltipData.includes('Overwhelmingly Positive'))
+                    rating = 5;
+                else if (ratingTooltipData.includes('Very Positive'))
+                    rating =  0.87 * 5;
+                else if (ratingTooltipData.includes('Mostly Positive'))
+                    rating =  0.75 * 5;
+                else if (ratingTooltipData.includes('Positive'))
+                    rating =  0.81 * 5;
+                else if (ratingTooltipData.includes('Mixed'))
+                    rating =  0.55 * 5;
+                else if (ratingTooltipData.includes('Mostly Negative'))
+                    rating =  0.3 * 5;
+                else if (ratingTooltipData.includes('Very Negative'))
+                    rating =  0.2 * 5;
+                else if (ratingTooltipData.includes('Overwhelmingly Negative'))
+                    rating =  0.1 * 5;
+                else if (ratingTooltipData.includes('Negative'))
+                    rating =  0.25 * 5;
+            }
+
+            results.push({ url, imageUrl, name, price, rating });
         });
         return results;
     });
