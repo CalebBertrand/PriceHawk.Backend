@@ -1,5 +1,5 @@
 import { AzureFunction } from "@azure/functions";
-import { CosmosClient } from '@azure/cosmos';
+import { CosmosClient, OperationInput } from '@azure/cosmos';
 import { Request } from '../SharedCode/request.js';
 import sendgridClient from '@sendgrid/mail';
 import { filterByConditions, processRequest } from "../SharedCode/query-handlers/process-requests.js";
@@ -22,24 +22,33 @@ export const timerTrigger: AzureFunction = async function (): Promise<void> {
         })), ({ marketplaceId, query }) => `${marketplaceId}:${query}`
     );
  
+    const replaceResultOps: OperationInput[] = [];
     const updatedResultsByQuery: Array<QueryResults> = await Promise.all(
         uniqueMarketplaceQueries.map(async ({ marketplaceId, query }) => {
-            const lastResults = lastResultsByQuery.find(r => r.query === query && r.marketplaceId === marketplaceId)?.results;
+            const lastQueryResult = lastResultsByQuery.find(r => r.query === query && r.marketplaceId === marketplaceId);
             const results = await processRequest({ query, marketplaceId });
-            await cosmosClient.container('results').items.upsert({ query, marketplaceId, results });
 
             // If the query has no previous results, use the ones we just got
-            if (!lastResults) return { query, marketplaceId, results };
+            if (!lastQueryResult) return { query, marketplaceId, results };
+
+            // If there was a previous result, we'll need to replace it with the new one
+            replaceResultOps.push({
+                operationType: "Replace",
+                partitionKey: query,
+                id: lastQueryResult.id,
+                resourceBody: { query, marketplaceId, results }
+            });
 
             // Otherwise, the updated results should be the ones that are either new or have different prices
             const updatedResults = results.filter(result => {
-                const lastResult = lastResults.find(r => r.name === result.name);
+                const lastResult = lastQueryResult.results.find(r => r.name === result.name);
                 if (!lastResult) return true;
                 return lastResult.price !== result.price;
             });
             return { query, marketplaceId, results: updatedResults };
         })
     );
+    await cosmosClient.container('results').items.bulk(replaceResultOps);
 
     await Promise.all(
         watches.map(async watch => {
