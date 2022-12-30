@@ -1,6 +1,7 @@
 import { IncomingWatch } from "../../Requests/incoming-watch.js";
 import { marketPlaces } from "../marketplaces.enum.js";
 import { PreviewRequest } from "../preview-request.js";
+import { QueryResults } from "../query-result.js";
 
 export function isNullOrWhiteSpace(str: string): boolean {
     return !str || str.trim().length === 0;
@@ -31,4 +32,14 @@ export function isValidPreviewRequest(contract: unknown): contract is PreviewReq
         && Array.isArray(contract['marketplaceIds'])
         && contract['marketplaceIds'].every(id => marketPlaces.has(id))
     );
+}
+
+export function isValidQueryResult(contract: unknown): contract is QueryResults {
+    return (
+        contract
+        && typeof contract['marketplaceId'] === 'number'
+        && typeof contract['query'] === 'string'
+        && !isNullOrWhiteSpace(contract['query'])
+        && Array.isArray(contract['results'])
+    )
 }

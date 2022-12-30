@@ -1,0 +1,14 @@
+{
+  "bindings": [
+    {
+      "type": "cosmosDBTrigger",
+      "direction": "in",
+      "name": "requestMade",
+      "databaseName": "price-hawk",
+      "collectionName": "results",
+      "connectionStringSetting": "PriceHawkConnectionString",
+      "createLeaseCollectionIfNotExists": true
+    }
+  ],
+  "scriptFile": "../dist/QueryOnResult/index.js"
+}
