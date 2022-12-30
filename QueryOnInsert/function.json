@@ -7,7 +7,8 @@
       "databaseName": "price-hawk",
       "collectionName": "requests",
       "connectionStringSetting": "PriceHawkConnectionString",
-      "createLeaseCollectionIfNotExists": true
+      "createLeaseCollectionIfNotExists": true,
+      "TriggerType": "TriggerType.Create"
     }
   ],
   "scriptFile": "../dist/QueryOnInsert/index.js"
