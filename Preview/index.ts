@@ -39,7 +39,12 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
       // When more marketplaces are added, need to only run for the results that don't already exist
       newMarketplaceIds.map(async marketplaceId => {
         const unfilteredResults = await processRequest({ query: previewReq.query, marketplaceId });
-        await cosmosClient.container('results').items.create({ id: normalizedQuery, query: normalizedQuery, marketplaceId: marketplaceId, results: unfilteredResults });
+        await cosmosClient.container('results').items.create({
+          id: `${marketplaceId}:${normalizedQuery}`,
+          query: normalizedQuery,
+          marketplaceId: marketplaceId,
+          results: unfilteredResults
+        });
         filteredResults.push(...filterByConditions(unfilteredResults, previewReq));
       })
   );

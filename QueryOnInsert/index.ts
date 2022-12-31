@@ -18,7 +18,7 @@ export const cosmosDBTrigger: AzureFunction = async function (_, documents: Arra
         {
             operationType: 'Upsert',
             resourceBody: {
-                id: normalizedQuery,
+                id: `${watch.marketplaceId}:${normalizedQuery}`,
                 query: normalizedQuery,
                 marketplaceId: watch.marketplaceId,
                 results: results

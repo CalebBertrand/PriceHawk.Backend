@@ -32,11 +32,12 @@ export const timerTrigger: AzureFunction = async function (): Promise<void> {
             if (!lastQueryResult) return { query, marketplaceId, results };
 
             // If there was a previous result, we'll need to replace it with the new one
+            const id = `${marketplaceId}:${query}`;
             replaceResultOps.push({
                 operationType: "Replace",
                 partitionKey: query,
-                id: query,
-                resourceBody: { id: query, query, marketplaceId, results }
+                id,
+                resourceBody: { id, query, marketplaceId, results }
             });
 
             // Otherwise, the updated results should be the ones that are either new or have different prices
