@@ -1,5 +1,5 @@
 import { IncomingWatch } from "../../Requests/incoming-watch.js";
-import { marketPlaces } from "../marketplaces.enum.js";
+import { marketPlaceIds } from "../marketplaces.enum.js";
 import { PreviewRequest } from "../preview-request.js";
 import { QueryResults } from "../query-result.js";
 
@@ -19,7 +19,7 @@ export function isValidWatch(contract: unknown): contract is IncomingWatch {
         && typeof contract['query'] === 'string'
         && !isNullOrWhiteSpace(contract['query'])
         && Array.isArray(contract['marketplaceIds'])
-        && contract['marketplaceIds'].every(id => marketPlaces.has(id))
+        && contract['marketplaceIds'].every(id => marketPlaceIds.has(id))
     );
 }
 
@@ -30,7 +30,7 @@ export function isValidPreviewRequest(contract: unknown): contract is PreviewReq
         && typeof contract['query'] === 'string'
         && !isNullOrWhiteSpace(contract['query'])
         && Array.isArray(contract['marketplaceIds'])
-        && contract['marketplaceIds'].every(id => marketPlaces.has(id))
+        && contract['marketplaceIds'].every(id => marketPlaceIds.has(id))
     );
 }
 

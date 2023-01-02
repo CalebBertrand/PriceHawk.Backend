@@ -1,6 +1,8 @@
-export const enum MarketPlaces {
+export enum MarketPlaces {
     Steam = 1,
-    Amazon = 2
+    Amazon = 2,
+    BustBuy = 3
 }
 
-export const marketPlaces = new Set([MarketPlaces.Steam, MarketPlaces.Amazon]);
+const ids = Object.values(MarketPlaces).filter(v => typeof v === 'number') as Array<MarketPlaces>;
+export const marketPlaceIds = new Set(ids);

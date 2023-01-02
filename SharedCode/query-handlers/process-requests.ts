@@ -3,6 +3,7 @@ import { RequestResult } from "./handler.js";
 import { steamRequestHandler } from "./steam.js";
 import fuzzysort from "fuzzysort";
 import { amazonRequestHandler } from "./amazon.js";
+import { bestbuyRequestHandler } from "./bestbuy.js";
 
 const sortThreshold = -1750;
 
@@ -12,6 +13,8 @@ export async function processRequest(request: { query: string, marketplaceId: Ma
             return await steamRequestHandler(request.query);
         case(MarketPlaces.Amazon):
             return await amazonRequestHandler(request.query);
+        case (MarketPlaces.BustBuy):
+            return await bestbuyRequestHandler(request.query);
     }
 }
 
