@@ -1,5 +1,6 @@
 import { RequestHandler, RequestResult } from "./handler.js";
 import { JSDOM } from 'jsdom';
+import { MarketPlaces } from "../marketplaces.enum.js";
 
 const searchUrl = (search: string) => `https://www.bestbuy.com/site/searchpage.jsp?st=${encodeURIComponent(search)}&_dyncharset=UTF-8&type=page&sc=Global&usc=All+Categories`;
 
@@ -28,7 +29,7 @@ export const bestbuyRequestHandler: RequestHandler = (query: string) => {
                 rating = parseFloat(starElm.innerHTML.substring(ratingPoint - 1, ratingPoint + 2))
             }
 
-            results.push({ url, imageUrl, name, price, rating });
+            results.push({ url, imageUrl, name, price, rating, marketplaceId: MarketPlaces.BustBuy });
         });
         return results;
     });

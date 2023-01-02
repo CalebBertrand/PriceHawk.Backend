@@ -1,6 +1,7 @@
 import { RequestHandler, RequestResult } from "./handler.js";
 
 import { JSDOM } from 'jsdom';
+import { MarketPlaces } from "../marketplaces.enum.js";
 
 const searchUrl = (search: string) => `https://store.steampowered.com/search/results?term=${encodeURI(search)}&force_infinite=1&supportedlang=english`;
 const imageTypeRegex = new RegExp("/[^/]+\.jpg");
@@ -38,7 +39,7 @@ export const steamRequestHandler: RequestHandler = (query: string) => {
                     rating =  0.25 * 5;
             }
 
-            results.push({ url, imageUrl, name, price, rating });
+            results.push({ url, imageUrl, name, price, rating, marketplaceId: MarketPlaces.Steam });
         });
         return results;
     });

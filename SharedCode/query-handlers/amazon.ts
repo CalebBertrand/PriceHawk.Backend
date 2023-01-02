@@ -1,5 +1,6 @@
 import { RequestHandler, RequestResult } from "./handler.js";
 import { JSDOM } from 'jsdom';
+import { MarketPlaces } from "../marketplaces.enum.js";
 
 const searchUrl = (search: string) => `https://www.amazon.com/s?k=${encodeURIComponent(search)}`;
 const convertImgUrlToLargerRes = (url: string) => {
@@ -36,7 +37,7 @@ export const amazonRequestHandler: RequestHandler = (query: string) => {
             const starElm: HTMLSpanElement = elm.querySelector('i.a-icon-star-small span.a-icon-alt');
             const rating = starElm ? parseFloat(starElm.innerHTML.substring(0, 3)) : undefined;
 
-            results.push({ url, imageUrl, name, price, rating });
+            results.push({ url, imageUrl, name, price, rating, marketplaceId: MarketPlaces.Amazon });
         });
         return results;
     });
