@@ -20,7 +20,7 @@ export const amazonRequestHandler: RequestHandler = (query: string) => {
 
             const linkElm: HTMLAnchorElement = elm.querySelector('h2 a');
             if (!linkElm) return;
-            const url = linkElm.href;
+            const url = `${linkElm.href}&tag=${process.env['AmazonAssociateId']}`;
 
             const titleElm: HTMLSpanElement = linkElm.querySelector('span');
             if (!titleElm) return;
