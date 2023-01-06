@@ -30,7 +30,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     .fetchAll();
   const previousResults = previewResultsQuery.resources as Array<QueryResults>;
   filteredResults.push(
-    ...previousResults.flatMap(({ results }) => filterByConditions(results, previewReq))
+    ...previousResults.flatMap(({ results }) => filterByConditions(results, previewReq, true))
   );
 
   // Still need to cover any queries in marketplaces that didn't pre-exist
@@ -45,7 +45,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
           marketplaceId: marketplaceId,
           results: unfilteredResults
         });
-        filteredResults.push(...filterByConditions(unfilteredResults, previewReq));
+        filteredResults.push(...filterByConditions(unfilteredResults, previewReq, true));
       })
   );
 
