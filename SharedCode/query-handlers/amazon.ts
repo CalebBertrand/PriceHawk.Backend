@@ -13,7 +13,10 @@ export const amazonRequestHandler: RequestHandler = (query: string) => {
     return JSDOM.fromURL(searchUrl(query)).then(dom => {
         const elements: NodeListOf<HTMLDivElement> = dom.window.document.querySelectorAll('.s-result-item');
         let results: Array<RequestResult> = [];
+        let i = 0;
         elements.forEach(elm => {
+            if (i++ > 20) return;
+
             // Ignore sponsored results, they aren't very relevant
             const isSponsored = !!elm.querySelector('.s-sponsored-label-text');
             if (isSponsored) return;

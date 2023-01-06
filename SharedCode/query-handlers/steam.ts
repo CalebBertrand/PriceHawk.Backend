@@ -10,7 +10,10 @@ export const steamRequestHandler: RequestHandler = (query: string) => {
     return JSDOM.fromURL(searchUrl(query)).then(dom => {
         const elements: NodeListOf<HTMLAnchorElement> = dom.window.document.querySelectorAll('a.search_result_row');
         let results: Array<RequestResult> = [];
+        let i = 0;
         elements.forEach(elm => {
+            if (i++ > 25) return;
+
             const url = elm.href;
             const imageUrl = elm.getElementsByTagName('img').item(0).src.replace(imageTypeRegex, "/header.jpg");
             const name = elm.getElementsByClassName('title').item(0).textContent;
