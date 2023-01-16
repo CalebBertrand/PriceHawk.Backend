@@ -15,8 +15,18 @@ export async function processRequest(request: { query: string, marketplaceId: Ma
     }
 }
 
-export function filterByConditions(results: Array<RequestResult>, request: { query: string, price: number }, preview = false): Array<RequestResult> {
+export function filterByConditions(
+    results: Array<RequestResult>,
+    request: { query: string, price: number, mustInclude?: string[] },
+    preview = false
+): Array<RequestResult> {
     const targetPrice = preview ? request.price * 1.5 : request.price;
-    const inPriceRange = results.filter(result => result.price <= targetPrice);
-    return inPriceRange.filter((_, i) => i < 15);
+    const filtered = results.filter(result => 
+        result.price <= targetPrice &&
+        (
+            !request.mustInclude ||
+            request.mustInclude.every(s => result.name.includes(s) || result.description?.includes(s))
+        )
+    );
+    return filtered.filter((_, i) => i < 15);
 }

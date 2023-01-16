@@ -5,4 +5,5 @@ export type Request = ItemDefinition & {
     query: string;
     price: number;
     marketplaceId: number;
+    mustInclude?: string[];
 }
