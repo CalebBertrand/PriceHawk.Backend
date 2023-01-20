@@ -22,8 +22,7 @@ export const cosmosDBTrigger: AzureFunction = async function (_, documents: Arra
                 query: normalizedQuery,
                 marketplaceId: watch.marketplaceId,
                 results: results
-            },
-            partitionKey: normalizedQuery
+            }
         }
     ], normalizedQuery);
 
