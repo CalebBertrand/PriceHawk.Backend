@@ -21,11 +21,15 @@ export function filterByConditions(
     preview = false
 ): Array<RequestResult> {
     const targetPrice = preview ? request.price * 1.5 : request.price;
+    const mustIncludeLowerCase = request.mustInclude?.map(s => s.toLowerCase());
     const filtered = results.filter(result => 
         result.price <= targetPrice &&
         (
-            !request.mustInclude ||
-            request.mustInclude.every(s => result.name.includes(s) || result.description?.includes(s))
+            !mustIncludeLowerCase?.length ||
+            mustIncludeLowerCase.every(s => 
+                result.name.toLowerCase().includes(s) ||
+                result.description?.toLocaleLowerCase().includes(s)
+            )
         )
     );
     return filtered.filter((_, i) => i < 15);
