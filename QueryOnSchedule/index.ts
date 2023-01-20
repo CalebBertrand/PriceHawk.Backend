@@ -22,7 +22,6 @@ export const timerTrigger: AzureFunction = async function (): Promise<void> {
         })), ({ marketplaceId, query }) => `${marketplaceId}:${query}`
     );
  
-    const replaceResultOps: OperationInput[] = [];
     const updatedResultsByQuery: Array<QueryResults> = await Promise.all(
         uniqueMarketplaceQueries.map(async ({ marketplaceId, query }) => {
             const lastQueryResult = lastResultsByQuery.find(r => r.query === query && r.marketplaceId === marketplaceId);
@@ -33,12 +32,14 @@ export const timerTrigger: AzureFunction = async function (): Promise<void> {
 
             // If there was a previous result, we'll need to replace it with the new one
             const id = `${marketplaceId}:${query}`;
-            replaceResultOps.push({
-                operationType: "Replace",
-                partitionKey: query,
-                id,
-                resourceBody: { id, query, marketplaceId, results }
-            });
+            await cosmosClient.container('results').items.bulk([
+                {
+                    operationType: "Replace",
+                    partitionKey: query,
+                    id,
+                    resourceBody: { id, query, marketplaceId, results }
+                }
+            ]);
 
             // Otherwise, the updated results should be the ones that are either new or have different prices
             const updatedResults = results.filter(result => {
@@ -49,7 +50,6 @@ export const timerTrigger: AzureFunction = async function (): Promise<void> {
             return { query, marketplaceId, results: updatedResults };
         })
     );
-    await cosmosClient.container('results').items.bulk(replaceResultOps);
 
     await Promise.all(
         watches.map(async watch => {

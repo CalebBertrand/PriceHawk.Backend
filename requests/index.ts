@@ -50,10 +50,10 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         return;
     }
 
-    const normilizedQuery = watch.query.trim().toLowerCase();
+    const normalizedQuery = watch.query.trim().toLowerCase();
     const duplicateWatchQuery = await cosmosClient.container('requests')
         .items
-        .query(`SELECT * FROM requests AS r WHERE r.query = '${normilizedQuery}' AND r.contact = '${watch.contact}'`)
+        .query(`SELECT * FROM requests AS r WHERE r.query = '${normalizedQuery}' AND r.contact = '${watch.contact}'`)
         .fetchNext();
     if (duplicateWatchQuery.resources.length) {
         context.bindings.httpRes = generateResponse(ResponseCodes.DuplicateWatch);
