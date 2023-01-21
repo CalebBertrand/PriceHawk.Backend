@@ -13,10 +13,7 @@ export const amazonRequestHandler: RequestHandler = (query: string) => {
     return JSDOM.fromURL(searchUrl(query)).then(dom => {
         const elements: NodeListOf<HTMLDivElement> = dom.window.document.querySelectorAll('.s-result-item');
         let results: Array<RequestResult> = [];
-        let i = 0;
         elements.forEach(elm => {
-            if (i++ > 20) return;
-
             // Ignore sponsored results, they aren't very relevant
             const isSponsored = !!elm.querySelector('.s-sponsored-label-text');
             if (isSponsored) return;
@@ -29,19 +26,19 @@ export const amazonRequestHandler: RequestHandler = (query: string) => {
             if (!titleElm) return;
             const name = titleElm.innerHTML;
 
-            const imageElm: HTMLImageElement = elm.querySelector('.s-list-col-left a img');
+            const imageElm: HTMLImageElement = elm.querySelector('.s-product-image-container a img');
             if (!imageElm) return;
             const imageUrl = convertImgUrlToLargerRes(imageElm.src);
 
             const priceElm: HTMLSpanElement = elm.querySelector('span.a-price span.a-price-whole');
             if (!priceElm) return;
-            const price = parseInt(priceElm.innerHTML.replace(/[^\d]/g, ''));
+            const price = parseInt(priceElm.innerHTML.replace(/[^\d]/g, ''), 10);
 
             const starElm: HTMLSpanElement = elm.querySelector('i.a-icon-star-small span.a-icon-alt');
             const rating = starElm ? parseFloat(starElm.innerHTML.substring(0, 3)) : undefined;
 
             results.push({ url, imageUrl, name, price, rating, marketplaceId: MarketPlaces.Amazon });
         });
-        return results;
+        return results.slice(0, 20);
     });
 }

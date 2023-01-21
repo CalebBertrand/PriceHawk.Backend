@@ -8,10 +8,7 @@ export const bestbuyRequestHandler: RequestHandler = (query: string) => {
     return JSDOM.fromURL(searchUrl(query)).then(dom => {
         const elements: NodeListOf<HTMLDivElement> = dom.window.document.querySelectorAll('.sku-item');
         let results: Array<RequestResult> = [];
-        let i = 0;
         elements.forEach(elm => {
-            if (i++ > 20) return;
-
             const linkElm: HTMLAnchorElement = elm.querySelector('.sku-title a');
             if (!linkElm) return;
             const url = linkElm.href;
@@ -34,6 +31,6 @@ export const bestbuyRequestHandler: RequestHandler = (query: string) => {
 
             results.push({ url, imageUrl, name, price, rating, marketplaceId: MarketPlaces.BustBuy });
         });
-        return results;
+        return results.slice(0, 21);
     });
 }
