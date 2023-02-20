@@ -6,8 +6,12 @@ import { MarketPlaces } from "../marketplaces.enum.js";
 const searchUrl = (search: string) => `https://store.steampowered.com/search/results?term=${encodeURI(search)}&force_infinite=1&supportedlang=english`;
 const imageTypeRegex = new RegExp("/[^/]+\.jpg");
 
+const jsdomOpts = {
+    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+};
+
 export const steamRequestHandler: RequestHandler = (query: string) => {
-    return JSDOM.fromURL(searchUrl(query)).then(dom => {
+    return JSDOM.fromURL(searchUrl(query), jsdomOpts).then(dom => {
         const elements: NodeListOf<HTMLAnchorElement> = dom.window.document.querySelectorAll('a.search_result_row');
         let results: Array<RequestResult> = [];
         elements.forEach(elm => {

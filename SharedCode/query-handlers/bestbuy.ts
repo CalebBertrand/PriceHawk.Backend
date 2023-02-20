@@ -4,8 +4,12 @@ import { MarketPlaces } from "../marketplaces.enum.js";
 
 const searchUrl = (search: string) => `https://www.bestbuy.com/site/searchpage.jsp?st=${encodeURIComponent(search)}&_dyncharset=UTF-8&type=page&sc=Global&usc=All+Categories`;
 
+const jsdomOpts = {
+    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+};
+
 export const bestbuyRequestHandler: RequestHandler = (query: string) => {
-    return JSDOM.fromURL(searchUrl(query)).then(dom => {
+    return JSDOM.fromURL(searchUrl(query), jsdomOpts).then(dom => {
         const elements: NodeListOf<HTMLDivElement> = dom.window.document.querySelectorAll('.sku-item');
         let results: Array<RequestResult> = [];
         elements.forEach(elm => {
