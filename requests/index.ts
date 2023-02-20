@@ -66,7 +66,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         marketplaceId,
         query: watch.query,
         price: watch.price,
-        ttl: 24 * 60 * 60 * watch.dayCount
+        ttl: 24 * 60 * 60 * watch.dayCount,
+        mustInclude: watch.mustInclude
     } as Request));
     context.bindings.requests = JSON.stringify(requests);
     context.bindings.httpRes = generateResponse(ResponseCodes.Success);

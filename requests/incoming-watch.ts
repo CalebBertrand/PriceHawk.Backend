@@ -4,7 +4,8 @@ export type IncomingWatch = {
     contact: string;
     query: string;
     price: number;
-    marketplaceIds: MarketPlaces[];
+    marketplaceIds: Array<MarketPlaces>;
+    mustInclude: Array<string>;
     captchaToken: string;
     dayCount: number;
     verificationCode: number;
