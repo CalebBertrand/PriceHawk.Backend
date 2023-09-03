@@ -26,7 +26,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `secret=${process.env["CaptchaSecret"]}&response=${watch.captchaToken}`,
-      });
+    });
     const verification = await response.json();
     if (!verification.success) {
         appInsights.defaultClient.trackEvent({ name: `Captcha Failed: ${JSON.stringify(verification)}` });
@@ -36,11 +36,20 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
     const cosmosClient = new CosmosClient(process.env["PriceHawkConnectionString"]).database('price-hawk');
 
-    const matchingVerificationQuery = await cosmosClient
-        .container('verifications')
-        .items
-        .query(`SELECT * FROM verifications AS v WHERE v.code = ${watch.verificationCode} AND v.email = '${watch.contact}'`)
-        .fetchNext();
+    const matchingVerificationQuerySpec = {
+        query: 'SELECT * FROM verifications AS v WHERE v.code = @verificationCode AND v.email = @contact',
+        parameters: [
+            {
+                name: '@verificationCode',
+                value: watch.verificationCode
+            },
+            {
+                name: '@contact',
+                value: watch.contact
+            }
+        ]
+    };
+    const matchingVerificationQuery = await cosmosClient.container('verifications').items.query(matchingVerificationQuerySpec).fetchNext();
     if (!matchingVerificationQuery.resources.length) {
         appInsights.defaultClient.trackEvent({
             name: `No Verification Code Matching ${watch.verificationCode}`,
@@ -51,10 +60,20 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     }
 
     const normalizedQuery = watch.query.trim().toLowerCase();
-    const duplicateWatchQuery = await cosmosClient.container('requests')
-        .items
-        .query(`SELECT * FROM requests AS r WHERE r.query = '${normalizedQuery}' AND r.contact = '${watch.contact}'`)
-        .fetchNext();
+    const duplicateWatchQuerySpec = {
+        query: 'SELECT * FROM requests AS r WHERE r.query = @query AND r.contact = @contact',
+        parameters: [
+            {
+                name: '@query',
+                value: normalizedQuery
+            },
+            {
+                name: '@contact',
+                value: watch.contact
+            }
+        ]
+    };
+    const duplicateWatchQuery = await cosmosClient.container('requests').items.query(duplicateWatchQuerySpec).fetchNext();
     if (duplicateWatchQuery.resources.length) {
         context.bindings.httpRes = generateResponse(ResponseCodes.DuplicateWatch);
         return;

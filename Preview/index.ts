@@ -12,8 +12,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
   const previewReq = req.body;
 
   if (!isValidPreviewRequest(previewReq)) {
-      context.bindings.httpRes = generateResponse(ResponseCodes.InvalidContract);
-      return;
+    context.bindings.httpRes = generateResponse(ResponseCodes.InvalidContract);
+    return;
   }
   sanitizePreviewRequest(previewReq);
 
@@ -27,9 +27,20 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
   const normalizedQuery = previewReq.query.trim().toLowerCase();
 
   try {
-    const previewResultsQuery = await cosmosClient.container('results').items
-      .query(`SELECT * FROM results AS r WHERE r.query = '${normalizedQuery}' AND r.marketplaceId IN (${marketplaceIds})`)
-      .fetchAll();
+    const previewResultsQuerySpec = {
+      query: `SELECT * FROM results AS r WHERE r.query = @query AND ARRAY_CONTAINS(@marketplaceIds, r.marketplaceId)`,
+      parameters: [
+        {
+          name: '@query',
+          value: normalizedQuery
+        },
+        {
+          name: '@marketplaceIds',
+          value: marketplaceIds
+        }
+      ]
+    };
+    const previewResultsQuery = await cosmosClient.container('results').items.query(previewResultsQuerySpec).fetchAll();
     const previousResults = previewResultsQuery.resources as Array<QueryResults>;
     filteredResults.push(
       ...previousResults.flatMap(({ results }) => filterByConditions(results, previewReq, true))
@@ -38,21 +49,21 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     // Still need to cover any queries in marketplaces that didn't pre-exist
     const newMarketplaceIds = previewReq.marketplaceIds.filter(id => previousResults.every(({ marketplaceId }) => id !== marketplaceId));
     await Promise.all(
-        // When more marketplaces are added, need to only run for the results that don't already exist
-        newMarketplaceIds.map(async marketplaceId => {
-          const unfilteredResults = await processRequest({ query: previewReq.query, marketplaceId });
-          await cosmosClient.container('results').items.create({
-            id: `${marketplaceId}:${normalizedQuery}`,
-            query: normalizedQuery,
-            marketplaceId: marketplaceId,
-            results: unfilteredResults
-          });
-          filteredResults.push(...filterByConditions(unfilteredResults, previewReq, true));
-        })
+      // When more marketplaces are added, need to only run for the results that don't already exist
+      newMarketplaceIds.map(async marketplaceId => {
+        const unfilteredResults = await processRequest({ query: previewReq.query, marketplaceId });
+        await cosmosClient.container('results').items.create({
+          id: `${marketplaceId}:${normalizedQuery}`,
+          query: normalizedQuery,
+          marketplaceId: marketplaceId,
+          results: unfilteredResults
+        });
+        filteredResults.push(...filterByConditions(unfilteredResults, previewReq, true));
+      })
     );
 
     context.bindings.httpRes = { status: 200, body: filteredResults };
-  } catch(err) {
+  } catch (err) {
     if (err?.code === 403) {
       context.bindings.httpRes = { status: 200, body: [] };
     } else {

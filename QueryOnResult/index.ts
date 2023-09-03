@@ -12,7 +12,7 @@ export const cosmosDBTrigger: AzureFunction = async function (_, documents: Arra
     const inserted = documents[0];
     if (!isValidQueryResult(inserted)) {
         appInsights.setup(process.env['APPLICATIONINSIGHTS_CONNECTION_STRING']).start();
-        appInsights.defaultClient.trackEvent({ 
+        appInsights.defaultClient.trackEvent({
             name: `QueryResult with id ${inserted.id} failed validation. MarketplaceId: ${JSON.stringify(inserted['marketplaceId'])}. Query: ${JSON.stringify(inserted['query'])}.`,
         });
         return;
@@ -22,9 +22,20 @@ export const cosmosDBTrigger: AzureFunction = async function (_, documents: Arra
     client.setApiKey(process.env["SENDGRID_API_KEY"]);
     const cosmosClient = new CosmosClient(process.env["PriceHawkConnectionString"]).database('price-hawk');
 
-    const matchingWatchesQuery = await cosmosClient.container('requests').items
-        .query(`SELECT * FROM requests AS r WHERE r.marketplaceId = '${marketplaceId}' AND r.query = '${sanitizeString(query)}'`)
-        .fetchAll();
+    const matchingWatchesQuerySpec = {
+        query: `SELECT * FROM requests AS r WHERE r.marketplaceId = @marketplaceId AND r.query = @query`,
+        parameters: [
+            {
+                name: '@marketplaceId',
+                value: marketplaceId
+            },
+            {
+                name: '@query',
+                value: query
+            }
+        ]
+    };
+    const matchingWatchesQuery = await cosmosClient.container('requests').items.query(matchingWatchesQuerySpec).fetchAll();
     if (!matchingWatchesQuery.resources.length) return;
 
     const matchingWatches = matchingWatchesQuery.resources as Array<Request>;
