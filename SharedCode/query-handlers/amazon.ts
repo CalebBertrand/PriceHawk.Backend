@@ -15,14 +15,14 @@ const jsdomOpts = {
 
 export const amazonRequestHandler: RequestHandler = (query: string) => {
     return JSDOM.fromURL(searchUrl(query), jsdomOpts).then(dom => {
-        const elements: NodeListOf<HTMLDivElement> = dom.window.document.querySelectorAll('.s-result-item');
+        const elements: NodeListOf<HTMLDivElement> = dom.window.document.querySelectorAll('.s-result-item[role="listitem"]');
         let results: Array<RequestResult> = [];
         elements.forEach(elm => {
             // Ignore sponsored results, they aren't very relevant
             const isSponsored = !!elm.querySelector('.s-sponsored-label-text');
             if (isSponsored) return;
 
-            const linkElm: HTMLAnchorElement = elm.querySelector('h2 a');
+            const linkElm: HTMLAnchorElement = elm.querySelector('a:has(> h2)');
             if (!linkElm) return;
             const url = `${linkElm.href}&tag=${process.env['AmazonAssociateId']}`;
 
