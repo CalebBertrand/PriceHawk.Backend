@@ -6,7 +6,7 @@
       "name": "requestMade",
       "databaseName": "price-hawk",
       "collectionName": "results",
-      "connectionStringSetting": "PriceHawkConnectionString",
+      "connectionStringSetting": "AZURE_COSMOS_CONNECTIONSTRING",
       "createLeaseCollectionIfNotExists": true,
       "TriggerType": "TriggerType.Create"
     }

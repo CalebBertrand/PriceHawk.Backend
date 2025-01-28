@@ -5,7 +5,7 @@ import { validate as uuidValidate } from 'uuid';
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
   const requestId = req.query['id'];
   if (requestId && uuidValidate(requestId)) {
-    const cosmosClient = new CosmosClient(process.env["PriceHawkConnectionString"])
+    const cosmosClient = new CosmosClient(process.env[""])
       .database('price-hawk').container('requests');
     try {
       await cosmosClient.item(requestId, requestId).delete();

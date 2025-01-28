@@ -1,10 +1,9 @@
-import { AzureFunction, Context } from "@azure/functions";
+import { AzureFunction } from "@azure/functions";
 
 import { Request } from '../SharedCode/request.js';
 import { filterByConditions } from "../SharedCode/query-handlers/process-requests.js";
 import client from '@sendgrid/mail';
 import { CosmosClient, ItemDefinition } from "@azure/cosmos";
-import { sanitizeString } from "../SharedCode/utils/sanitation.js";
 import { isValidQueryResult } from "../SharedCode/utils/validation.js";
 import appInsights from 'applicationinsights';
 
@@ -20,7 +19,7 @@ export const cosmosDBTrigger: AzureFunction = async function (_, documents: Arra
     const { marketplaceId, query, results } = inserted;
 
     client.setApiKey(process.env["SENDGRID_API_KEY"]);
-    const cosmosClient = new CosmosClient(process.env["PriceHawkConnectionString"]).database('price-hawk');
+    const cosmosClient = new CosmosClient(process.env["AZURE_COSMOS_CONNECTIONSTRING"]).database('price-hawk');
 
     const matchingWatchesQuerySpec = {
         query: `SELECT * FROM requests AS r WHERE r.marketplaceId = @marketplaceId AND r.query = @query`,

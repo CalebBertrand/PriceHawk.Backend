@@ -17,7 +17,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
   }
   sanitizePreviewRequest(previewReq);
 
-  const cosmosClient = new CosmosClient(process.env["PriceHawkConnectionString"]).database('price-hawk');
+  const cosmosClient = new CosmosClient(process.env["AZURE_COSMOS_CONNECTIONSTRING"]).database('price-hawk');
 
   // The aggregated results
   const filteredResults: Array<RequestResult> = [];

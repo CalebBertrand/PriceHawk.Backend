@@ -9,7 +9,7 @@ import { uniqBy } from 'lodash-es';
 export const timerTrigger: AzureFunction = async function (): Promise<void> {
     sendgridClient.setApiKey(process.env["SENDGRID_API_KEY"]);
 
-    const cosmosClient = new CosmosClient(process.env["PriceHawkConnectionString"]).database('price-hawk');
+    const cosmosClient = new CosmosClient(process.env["AZURE_COSMOS_CONNECTIONSTRING"]).database('price-hawk');
     const requestsQuery = await cosmosClient.container('requests').items.readAll().fetchAll();
     const resultsQuery = await cosmosClient.container('results').items.readAll().fetchAll();
     const watches = requestsQuery.resources as Array<Request>;

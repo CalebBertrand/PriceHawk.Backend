@@ -34,7 +34,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         return;
     }
 
-    const cosmosClient = new CosmosClient(process.env["PriceHawkConnectionString"]).database('price-hawk');
+    const cosmosClient = new CosmosClient(process.env["AZURE_COSMOS_CONNECTIONSTRING"]).database('price-hawk');
 
     const matchingVerificationQuerySpec = {
         query: 'SELECT * FROM verifications AS v WHERE v.code = @verificationCode AND v.email = @contact',

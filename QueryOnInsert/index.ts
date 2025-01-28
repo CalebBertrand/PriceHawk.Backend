@@ -11,7 +11,7 @@ export const cosmosDBTrigger: AzureFunction = async function (_, documents: Arra
     const watch = documents[0];
     const results = await processRequest(watch);
     if (!results.length) return;
-    const cosmosClient = new CosmosClient(process.env["PriceHawkConnectionString"]).database('price-hawk');
+    const cosmosClient = new CosmosClient(process.env["AZURE_COSMOS_CONNECTIONSTRING"]).database('price-hawk');
     const normalizedQuery = watch.query.trim().toLowerCase();
     // Batch api as a work around until https://github.com/Azure/azure-sdk-for-js/issues/20824 fix is out
     await cosmosClient.container('results').items.batch([

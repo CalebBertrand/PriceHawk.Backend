@@ -12,7 +12,7 @@
       "databaseName": "price-hawk",
       "collectionName": "requests",
       "createIfNotExists": false,
-      "connectionStringSetting": "PriceHawkConnectionString",
+      "connectionStringSetting": "AZURE_COSMOS_CONNECTIONSTRING",
       "direction": "out"
     },
     {
